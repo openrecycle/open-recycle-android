@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.ImageView
 import com.punksta.apps.openrecycle.model.Model
+import com.punksta.apps.openrecycle.ui.showPhoto
 
 /**
  * Created by stanislav on 3/11/17.

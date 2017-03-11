@@ -1,4 +1,4 @@
-package com.punksta.apps.openrecycle
+package com.punksta.apps.openrecycle.ui
 
 import android.app.Activity
 import android.content.Context

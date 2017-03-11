@@ -14,6 +14,24 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="DialogSlideAnim" parent="@android:style/Theme.Dialog">
+        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+    </style>
+
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_from_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_to_up</item>
+    </style>
+
+    <style name="Dialog.NoTitle" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:windowBackground">@null</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

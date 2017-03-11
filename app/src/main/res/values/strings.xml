@@ -1,6 +1,11 @@
 <resources>
-    <string name="app_name">OpenRecycler</string>
+    <string name="app_name">OpenRecycle</string>
     <string name="action_settings">Settings</string>
     <string name="tab_items.classify">Распознать</string>
     <string name="tab_item.send">Отправить</string>
+
+    <string name="menu.sort">Сортировать</string>
+    <string name="menu.map">Карта</string>
+    <string name="menu.help">Помочь</string>
+
 </resources>

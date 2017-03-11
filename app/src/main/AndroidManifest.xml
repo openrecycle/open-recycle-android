@@ -8,7 +8,7 @@
     <uses-feature android:name="android.hardware.camera" />
 
     <application
-        android:name="com.punksta.apps.openrecycle.RApplicaiton"
+        android:name="RApplicaiton"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.punksta.apps.openrecycle.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -28,7 +28,7 @@
         </activity>
 
         <activity
-            android:name="com.punksta.apps.openrecycle.PhotoUploadActivity"
+            android:name=".PhotoUploadActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
