@@ -37,7 +37,11 @@ object Model {
     private val okHttp by lazy {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
-        OkHttpClient.Builder().addInterceptor(interceptor).build()
+        OkHttpClient.Builder()
+                .addInterceptor(interceptor)
+                .connectTimeout(20L, TimeUnit.SECONDS)
+                .readTimeout(20L, TimeUnit.SECONDS)
+                .build()
     }
     private val gson: Gson = Gson()
     private val apiScheduler = Schedulers.from(ThreadPoolExecutor(1, 4, 2L, TimeUnit.MINUTES, LinkedBlockingDeque()))
@@ -46,7 +50,6 @@ object Model {
     var targetImage: Photo? = null
 
     fun preProcessImage(jpeg: ByteArray, camptureSize: Size): Bitmap {
-
         var finalSize = Size(camptureSize.width, camptureSize.height)
         var inSampleSize = 1
         while (finalSize.width > maxWidth || finalSize.height > maxHeight) {
@@ -54,6 +57,18 @@ object Model {
             inSampleSize *= 2
         }
         return BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size, BitmapFactory.Options().also { it.inSampleSize = inSampleSize })
+    }
+
+    fun preProcessImage(file: File): Bitmap {
+        val opt = BitmapFactory.Options().also { it.inJustDecodeBounds }
+        BitmapFactory.decodeFile(file.absolutePath, opt)
+        var finalSize = Size(opt.outWidth, opt.outHeight)
+        var inSampleSize = 1
+        while (finalSize.width > maxWidth || finalSize.height > maxHeight) {
+            finalSize = Size(finalSize.width / 2, finalSize.width / 2)
+            inSampleSize *= 2
+        }
+        return BitmapFactory.decodeFile(file.absolutePath, BitmapFactory.Options().also { it.inSampleSize = inSampleSize })
     }
 
 
@@ -69,11 +84,21 @@ object Model {
                     MultipartBody.Part.createFormData(filename, partName, RequestBody.create(MediaType.parse("image/*"), stream.toByteArray()))
                 }
                 is FilePhoto -> {
+                    val b = preProcessImage(photo.file)
+                    val stream = ByteArrayOutputStream()
+                    b.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, stream)
+                    b.recycle()
                     MultipartBody.Part.createFormData(filename, partName, RequestBody.create(MediaType.parse("image/*"), photo.file))
                 }
                 is UriPhoto -> {
                     val path = FileUtils.getPath(RApplicaiton.instance, photo.uri)
-                    MultipartBody.Part.createFormData(filename, partName, RequestBody.create(MediaType.parse("image/*"), File(path)))
+                    val file = File(path)
+
+                    val b = preProcessImage(file)
+                    val stream = ByteArrayOutputStream()
+                    b.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, stream)
+                    b.recycle()
+                    MultipartBody.Part.createFormData(filename, partName, RequestBody.create(MediaType.parse("image/*"), file))
                 }
             }
             it.onSuccess(part)
