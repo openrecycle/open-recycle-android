@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.flurgle.camerakit.Size
 import com.google.gson.Gson
+import com.punksta.apps.openrecycle.BuildConfig
 import com.punksta.apps.openrecycle.RApplicaiton
 import com.punksta.apps.openrecycle.entity.*
 import com.punksta.apps.openrecycle.model.utils.FileUtils
@@ -29,7 +30,7 @@ object Model {
     val JPEG_QUALITY = 60
     private val maxWidth = 450
     private val maxHeight = 700
-    private val apiUrl = "http://209.205.126.27:5000"
+    private val apiUrl = BuildConfig.API_URL
     private val userId = "android"
     private val source = "android"
 

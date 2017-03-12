@@ -1,27 +1,66 @@
 package com.punksta.apps.openrecycle
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import com.punksta.apps.openrecycle.entity.FilePhoto
+import com.punksta.apps.openrecycle.model.Model
 import com.punksta.apps.openrecycle.model.Model.garbageTypes
 import com.punksta.apps.openrecycle.ui.BaseActivity
 import com.punksta.apps.openrecycle.ui.MenuItem
 import com.punksta.apps.openrecycle.ui.MenuItemHolder
+import pl.aprilapps.easyphotopicker.DefaultCallback
+import pl.aprilapps.easyphotopicker.EasyImage
+import rx.subscriptions.CompositeSubscription
+import java.io.File
 
 /**
  * Created by stanislav on 3/12/17.
  */
 class HelpActivity : BaseActivity(), MenuItemHolder {
+    private val compositeSubscription = CompositeSubscription()
+
     override val menuNameId: Int
         get() = MenuItem.HELP.titleRes
 
-    val spinner
+    val spinnerView
         get() = findViewById(R.id.spinner) as Spinner
+
+    val currentSelectedType: String
+        get() = spinnerView.selectedItemPosition
+                .let(com.punksta.apps.openrecycle.model.Model.garbageTypes::get)
+                .let(Pair<String, *>::first)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
-        spinner.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, garbageTypes.map { it.second })
+        spinnerView.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, garbageTypes.map { it.second })
+
+        findViewById(R.id.camera_button).setOnClickListener {
+            EasyImage.openCamera(this, 0)
+        }
+        findViewById(R.id.gallery_button).setOnClickListener {
+            EasyImage.openChooserWithGallery(this, "Выбирите галерею", 0)
+        }
     }
 
+    private val callback = object : DefaultCallback() {
+        override fun onImagePicked(imageFile: File, source: EasyImage.ImageSource?, type: Int) {
+            uploadPhoto(imageFile)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        EasyImage.handleActivityResult(requestCode, resultCode, data, this, callback)
+    }
+
+    private fun uploadPhoto(file: File) {
+        Model.targetImage = FilePhoto(file)
+        val intent = with(Intent(this, PhotoUploadActivity::class.java)) {
+            putExtra("type", currentSelectedType)
+        }
+        startActivity(intent)
+    }
 }
