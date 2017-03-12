@@ -3,4 +3,9 @@
     <color name="colorPrimary">#1a1a1a</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#ffffff</color>
+
+    <color name="menu_item.unselected">#de000000</color>
+    <color name="menu_item.selected">#8bc34a</color>
+    <color name="menu_item.active">#487e0a</color>
+
 </resources>

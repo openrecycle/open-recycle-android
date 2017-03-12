@@ -30,5 +30,7 @@
         android:padding="16dp"
         android:src="@drawable/ic_camera_light" />
 
-    <include layout="@layout/toolbar_layout" />
+    <include layout="@layout/toolbar_layout"
+        android:background="#61000000"
+        />
 </RelativeLayout>
