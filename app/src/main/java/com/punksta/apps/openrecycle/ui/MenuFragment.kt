@@ -71,8 +71,11 @@ class MenuFragment : DialogFragment() {
             else -> null
         }
 
-        if (nextActivity != null && nextActivity.isInstance(activity).not())
+        if (nextActivity != null && nextActivity.isInstance(activity).not()) {
             startActivity(Intent(activity, nextActivity))
+            //todo: add beautiful animations
+            activity.overridePendingTransition(0, 0)
+        }
 
         dismiss()
     }
