@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:background="@android:color/white"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <include layout="@layout/toolbar_layout_light"/>
+    <include layout="@layout/toolbar_layout_light" />
 
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:textSize="20sp" />
 
+    <ImageView
+        android:id="@+id/camera_button"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_below="@+id/spinner"
+        android:layout_margin="10dp"
+        android:background="@android:color/holo_green_dark"
+        android:padding="40dp"
+        android:src="@drawable/camera" />
+
+    <ImageView
+        android:id="@+id/gallery_button"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/spinner"
+        android:layout_margin="10dp"
+        android:background="@android:color/holo_green_dark"
+        android:padding="40dp"
+        android:src="@drawable/combined_shape" />
 
 </RelativeLayout>
