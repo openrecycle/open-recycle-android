@@ -25,6 +25,9 @@ class PhotoUploadActivity : AppCompatActivity() {
             setContentView(R.layout.upload_photo_activity)
             (findViewById(R.id.image) as ImageView).showPhoto(photo)
         }
+        findViewById(R.id.cancel_uploading).setOnClickListener {
+            finish()
+        }
     }
 
     override fun onStart() {
@@ -33,7 +36,7 @@ class PhotoUploadActivity : AppCompatActivity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     AlertDialog.Builder(this)
-                            .setTitle("Мусор обработон")
+                            .setTitle("Мусор обработан")
                             .setCancelable(false)
                             .setMessage("Результат распознования: ${it.type}")
                             .setPositiveButton("Ок", { d, e -> finish() })
