@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.widget.ImageView
+import com.punksta.apps.openrecycle.entity.ClassificationResult
 import com.punksta.apps.openrecycle.entity.Photo
+import com.punksta.apps.openrecycle.entity.Response
 import com.punksta.apps.openrecycle.model.Model
 import com.punksta.apps.openrecycle.ui.showPhoto
+import rx.Single
 import rx.android.schedulers.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
 
@@ -18,6 +21,9 @@ class PhotoUploadActivity : AppCompatActivity() {
 
     private val type: String?
         get() = intent.getStringExtra("type")
+
+    private var loaded = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,10 +40,30 @@ class PhotoUploadActivity : AppCompatActivity() {
         }
     }
 
+    companion object {
+        private var cacheClassify: Single<ClassificationResult>? = null
+        private var cacheLearn: Single<Response>? = null
+
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        loaded = savedInstanceState.getBoolean("loaded", false)
+    }
+
     private fun uploadForLearning(photo: Photo, type: String) {
-        Model.uploadMarkedData(photo, type)
-                .observeOn(AndroidSchedulers.mainThread())
+        when (cacheLearn) {
+            null -> {
+                Model.uploadMarkedData(photo, type).cache().apply {
+                    cacheLearn = this
+                }
+            }
+            else -> {
+                cacheLearn!!
+            }
+        }.observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
+                    loaded = true
                     AlertDialog.Builder(this)
                             .setTitle("Загрузка завершена")
                             .setCancelable(false)
@@ -45,6 +71,7 @@ class PhotoUploadActivity : AppCompatActivity() {
                             .setPositiveButton("Ок", { d, e -> finish() })
                             .show()
                 }, {
+                    loaded = true
                     it.printStackTrace()
                     AlertDialog.Builder(this)
                             .setTitle("Ошибка загрузки")
@@ -56,10 +83,25 @@ class PhotoUploadActivity : AppCompatActivity() {
                 .run(compositeSubsctiption::add)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean("loaded", loaded)
+    }
+
     private fun uploadForClassify(photo: Photo) {
-        Model.classify(photo)
+        when (cacheClassify) {
+            null -> {
+                Model.classify(photo).cache().apply {
+                    cacheClassify = this
+                }
+            }
+            else -> {
+                cacheClassify!!
+            }
+        }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
+                    loaded = true
                     AlertDialog.Builder(this)
                             .setTitle("Мусор обработан")
                             .setCancelable(false)
@@ -67,6 +109,7 @@ class PhotoUploadActivity : AppCompatActivity() {
                             .setPositiveButton("Ок", { d, e -> finish() })
                             .show()
                 }, {
+                    loaded = true
                     it.printStackTrace()
                     AlertDialog.Builder(this)
                             .setTitle("Ошибка загрузки")
@@ -82,12 +125,17 @@ class PhotoUploadActivity : AppCompatActivity() {
         super.onStart()
         val t = type
 
-        if (t != null) {
+        if (!loaded && t != null) {
             uploadForLearning(Model.targetImage!!, t)
         } else {
             uploadForClassify(Model.targetImage!!)
         }
+    }
 
+    override fun finish() {
+        super.finish()
+        cacheClassify = null
+        cacheLearn = null
     }
 
     override fun onStop() {
