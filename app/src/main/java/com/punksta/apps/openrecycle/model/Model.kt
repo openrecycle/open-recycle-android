@@ -9,13 +9,17 @@ import com.punksta.apps.openrecycle.entity.*
 import com.punksta.apps.openrecycle.model.utils.FileUtils
 import okhttp3.MediaType
 import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
 import okhttp3.RequestBody
+import okhttp3.logging.HttpLoggingInterceptor
 import rx.Single
 import rx.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
+
 
 /**
  * Created by stanislav on 3/11/17.
@@ -29,9 +33,14 @@ object Model {
     private val userId = "android"
     private val source = "android"
 
+    private val okHttp by lazy {
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.level = HttpLoggingInterceptor.Level.BODY
+        OkHttpClient.Builder().addInterceptor(interceptor).build()
+    }
     private val gson: Gson = Gson()
     private val apiScheduler = Schedulers.from(ThreadPoolExecutor(1, 4, 2L, TimeUnit.MINUTES, LinkedBlockingDeque()))
-    private val api: ApiInterface by lazy { ApiFactory.getApi(apiUrl, apiScheduler, gson) }
+    private val api: ApiInterface by lazy { ApiFactory.getApi(apiUrl, apiScheduler, gson, okHttp) }
 
     var targetImage: Photo? = null
 
@@ -47,23 +56,23 @@ object Model {
     }
 
 
-    private fun createPartFromPhoto(filename: String, photo: Photo): Single<MultipartBody.Part> {
+    private fun createPartFromPhoto(partName: String, filename: String, photo: Photo): Single<MultipartBody.Part> {
         return Single.create<MultipartBody.Part> {
 
             val part = when (photo) {
                 is RamPhoto -> {
                     val b = preProcessImage(photo.byteArray, photo.size)
                     val stream = ByteArrayOutputStream()
-                    b.compress(Bitmap.CompressFormat.PNG, JPEG_QUALITY, stream)
+                    b.compress(Bitmap.CompressFormat.JPEG, JPEG_QUALITY, stream)
                     b.recycle()
-                    MultipartBody.Part.createFormData(filename, filename, RequestBody.create(MediaType.parse("image/*"), stream.toByteArray()))
+                    MultipartBody.Part.createFormData(filename, partName, RequestBody.create(MediaType.parse("image/*"), stream.toByteArray()))
                 }
                 is FilePhoto -> {
-                    MultipartBody.Part.createFormData(filename, filename, RequestBody.create(MediaType.parse("image/*"), photo.file))
+                    MultipartBody.Part.createFormData(filename, partName, RequestBody.create(MediaType.parse("image/*"), photo.file))
                 }
                 is UriPhoto -> {
-                    val file = FileUtils.getPath(RApplicaiton.instance, photo.uri)
-                    MultipartBody.Part.createFormData(filename, filename, RequestBody.create(MediaType.parse("image/*"), file))
+                    val path = FileUtils.getPath(RApplicaiton.instance, photo.uri)
+                    MultipartBody.Part.createFormData(filename, partName, RequestBody.create(MediaType.parse("image/*"), File(path)))
                 }
             }
             it.onSuccess(part)
@@ -76,13 +85,13 @@ object Model {
 
     fun uploadMarkedData(photo: Photo, type: String): Single<Response> {
         val name = getPhotoName(photo)
-        return createPartFromPhoto(name, photo)
+        return createPartFromPhoto(name, "file", photo)
                 .flatMap { api.uploadMarkedData(it, name, type, userId, source) }
     }
 
-    fun classify(photo: Photo): Single<Response> {
+    fun classify(photo: Photo): Single<ClassificationResult> {
         val name = getPhotoName(photo)
-        return createPartFromPhoto(name, photo)
+        return createPartFromPhoto(name, "file", photo)
                 .flatMap { api.classify(it, name, userId, source) }
     }
 

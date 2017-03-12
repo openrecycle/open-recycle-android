@@ -11,6 +11,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -36,6 +37,8 @@ dependencies {
     compile 'com.squareup.retrofit2:retrofit:2.2.0'
     compile 'com.squareup.retrofit2:adapter-rxjava:2.2.0'
     compile 'com.squareup.retrofit2:converter-gson:2.2.0'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.6.0'
 }
 repositories {
     mavenCentral()
