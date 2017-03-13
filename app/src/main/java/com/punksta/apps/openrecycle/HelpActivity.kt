@@ -1,7 +1,9 @@
 package com.punksta.apps.openrecycle
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.ActivityCompat
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import com.punksta.apps.openrecycle.entity.FilePhoto
@@ -10,6 +12,7 @@ import com.punksta.apps.openrecycle.model.Model.garbageTypes
 import com.punksta.apps.openrecycle.ui.BaseActivity
 import com.punksta.apps.openrecycle.ui.MenuItem
 import com.punksta.apps.openrecycle.ui.MenuItemHolder
+import com.punksta.apps.openrecycle.ui.isPermissionsGranted
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
 import rx.subscriptions.CompositeSubscription
@@ -32,22 +35,54 @@ class HelpActivity : BaseActivity(), MenuItemHolder {
                 .let(com.punksta.apps.openrecycle.model.Model.garbageTypes::get)
                 .let(Pair<String, *>::first)
 
+    private val CAMERA = 1;
+    private val GALLERY = 2;
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_help)
         spinnerView.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, garbageTypes.map { it.second })
 
         findViewById(R.id.camera_button).setOnClickListener {
-            EasyImage.openCamera(this, 0)
+            if (isPermissionsGranted(*cameraPermission)) {
+                EasyImage.openCamera(this, 0)
+            } else {
+                ActivityCompat.requestPermissions(this, cameraPermission, CAMERA)
+            }
         }
+
         findViewById(R.id.gallery_button).setOnClickListener {
-            EasyImage.openChooserWithGallery(this, "Выбирите галерею", 0)
+            if (isPermissionsGranted(*galleryPermission)) {
+                EasyImage.openChooserWithGallery(this, getString(R.string.select_gallery), 0)
+            } else {
+                ActivityCompat.requestPermissions(this, cameraPermission, GALLERY)
+            }
         }
     }
+
+    private val galleryPermission = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    private val cameraPermission = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     private val callback = object : DefaultCallback() {
         override fun onImagePicked(imageFile: File, source: EasyImage.ImageSource?, type: Int) {
             uploadPhoto(imageFile)
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            CAMERA -> {
+                if (isPermissionsGranted(*cameraPermission)) {
+                    EasyImage.openCamera(this, 0)
+                }
+            }
+
+            GALLERY -> {
+                if (isPermissionsGranted(*cameraPermission)) {
+                    EasyImage.openChooserWithGallery(this, getString(R.string.select_gallery), 0)
+                }
+            }
         }
     }
 

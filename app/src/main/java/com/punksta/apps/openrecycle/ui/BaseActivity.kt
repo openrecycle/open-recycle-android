@@ -1,5 +1,8 @@
 package com.punksta.apps.openrecycle.ui
 
+import android.app.Activity
+import android.content.pm.PackageManager
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.widget.TextView
 import com.punksta.apps.openrecycle.R
@@ -44,4 +47,8 @@ open class BaseActivity : AppCompatActivity() {
                 0
             }
         }
+}
+
+fun Activity.isPermissionsGranted(vararg permission: String): Boolean {
+    return permission.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
 }

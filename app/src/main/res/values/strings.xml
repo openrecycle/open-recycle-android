@@ -7,5 +7,6 @@
     <string name="menu.sort">Сортировать</string>
     <string name="menu.map">Карта</string>
     <string name="menu.help">Помочь</string>
+    <string name="select_gallery">Выбирите галерею</string>
 
 </resources>
