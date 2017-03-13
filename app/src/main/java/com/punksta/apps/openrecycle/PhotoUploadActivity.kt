@@ -34,9 +34,9 @@ class PhotoUploadActivity : AppCompatActivity() {
         else {
             setContentView(R.layout.upload_photo_activity)
             (findViewById(R.id.image) as ImageView).showPhoto(photo)
-        }
-        findViewById(R.id.cancel_uploading).setOnClickListener {
-            finish()
+            findViewById(R.id.cancel_uploading).setOnClickListener {
+                finish()
+            }
         }
     }
 
@@ -125,10 +125,12 @@ class PhotoUploadActivity : AppCompatActivity() {
         super.onStart()
         val t = type
 
-        if (!loaded && t != null) {
-            uploadForLearning(Model.targetImage!!, t)
-        } else {
-            uploadForClassify(Model.targetImage!!)
+        if (!loaded) {
+            if (t != null) {
+                uploadForLearning(Model.targetImage!!, t)
+            } else {
+                uploadForClassify(Model.targetImage!!)
+            }
         }
     }
 
@@ -136,6 +138,7 @@ class PhotoUploadActivity : AppCompatActivity() {
         super.finish()
         cacheClassify = null
         cacheLearn = null
+        Model.targetImage = null
     }
 
     override fun onStop() {

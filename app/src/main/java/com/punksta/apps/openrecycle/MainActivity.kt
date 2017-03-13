@@ -10,7 +10,7 @@ import com.punksta.apps.openrecycle.ui.MenuItemHolder
 
 class MainActivity : BaseActivity(), MenuItemHolder {
     override val menuNameId: Int
-        get() = R.string.menu_sort;
+        get() = R.string.menu_sort
 
     private val cameraView
         get() = findViewById(R.id.camera_view) as com.flurgle.camerakit.CameraView
@@ -28,16 +28,16 @@ class MainActivity : BaseActivity(), MenuItemHolder {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        cameraView.setJpegQuality(Model.JPEG_QUALITY)
-        cameraView.setCameraListener(listener)
         findViewById(R.id.take_picture).setOnClickListener {
             cameraView.captureImage()
         }
-
     }
 
     override fun onResume() {
         super.onResume()
+        cameraView.setJpegQuality(Model.JPEG_QUALITY)
+        cameraView.setCameraListener(listener)
+
         cameraView.start()
     }
 
