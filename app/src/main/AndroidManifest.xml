@@ -41,6 +41,9 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Light.NoActionBar" />
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="25a3f9f622bd7c124bdbb314a05be2726b029bc6" />
     </application>
 
 </manifest>
